@@ -1,5 +1,11 @@
 #include "systemcalls.h"
-
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 /**
  * @param cmd the command to execute with system()
  * @return true if the command in @param cmd was executed
@@ -9,7 +15,22 @@
 */
 bool do_system(const char *cmd)
 {
+    if (cmd == NULL)
+    {
+        return false;
+    }
+    int ret = system(cmd);
+    if (ret == -1)
+    {
+        return false;
+    }
+    if ( WIFEXITED(ret) && WEXITSTATUS(ret)== 0)
+    {
+        return true;
+    }
 
+
+        
 /*
  * TODO  add your code here
  *  Call the system() function with the command set in the cmd
@@ -17,7 +38,7 @@ bool do_system(const char *cmd)
  *   or false() if it returned a failure
 */
 
-    return true;
+    return false;
 }
 
 /**
@@ -47,7 +68,34 @@ bool do_exec(int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
+    pid_t pid = fork();
+    if(pid < 0)
+    {
+        return false;
+    }
+    else if (pid == 0) 
+    {
+        execv(command[0],command);
+        exit(1);
+    
+    }
+    else 
+    {
+        int status;
+        if(waitpid(pid, &status , 0) <0)
+        {
+            return false;
+        }
+        if ( WIFEXITED(status)&&WEXITSTATUS(status) == 0)
+        {
+            return true;
+        }
+
+
+    }
+        
+    
 
 /*
  * TODO:
@@ -61,7 +109,7 @@ bool do_exec(int count, ...)
 
     va_end(args);
 
-    return true;
+    return false;
 }
 
 /**
@@ -82,8 +130,43 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     command[count] = NULL;
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
-    command[count] = command[count];
+    //command[count] = command[count];
+    int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT , 0644);
+    if (fd <0)
+    {
+        perror("open false");
+        exit(1);
+    }
 
+    pid_t pid = fork();
+
+    if (pid < 0 )
+    {
+        return false;
+    }
+    else if (pid == 0) 
+    {   
+        if (dup2(fd, 1)<0)
+        {
+            perror("dup2");
+            exit(1);
+        }
+        close(fd);
+        execv(command[0], command);
+        exit(1);
+    }
+    else
+    {
+        int status;
+        if (waitpid(pid, &status, 0) < 0)
+        {
+            return false;
+        }
+        if (WIFEXITED(status) && WEXITSTATUS(status) == 0)
+        {
+            return true;
+        }
+    }
 
 /*
  * TODO
@@ -95,5 +178,5 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
 
     va_end(args);
 
-    return true;
+    return false;
 }
