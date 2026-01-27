@@ -17,5 +17,9 @@ jobs:
           - uses: actions/checkout@v2
           - name: Checkout submodules
             run : git submodule update --init --recursive
+          - name: Install cross-compiler in container
+            run: |
+              apt-get update
+              apt-get install -y gcc-aarch64-linux-gnu bc u-boot-tools flex bison libssl-dev libelf-dev sudo cpio
           - name: Run full test
             run: ./full-test.sh
