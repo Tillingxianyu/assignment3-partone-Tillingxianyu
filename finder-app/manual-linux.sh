@@ -84,7 +84,7 @@ make -j8 ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} \
     CONFIG_PREFIX=${OUTDIR}/rootfs install
 
-    cd /tmp/aeld/rootfs
+    cd ${OUTDIR}/rootfs
     pwd
     sudo chown root:root bin/busybox
     sudo chmod u+s bin/busybox
@@ -116,7 +116,9 @@ sudo mknod -m 666 dev/tty c 5 0
 # use arch
 #cd /home/siyaya/Documents/gitclone/homework/assignment-1-Tillingxianyu/finder-app
 #use docker
-cd /home/assignment/finder-app
+#cd /home/assignment/finder-app
+cd $(dirname $0)
+cd ./finder-app
 make clean 
 make CROSS_COMPILE=${CROSS_COMPILE}
 cp -v writer ${OUTDIR}/rootfs/home
