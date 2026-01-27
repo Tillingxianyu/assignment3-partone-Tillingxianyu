@@ -12,7 +12,8 @@ BUSYBOX_VERSION=1_33_1
 FINDER_APP_DIR=$(realpath $(dirname $0))
 ARCH=arm64
 CROSS_COMPILE=aarch64-linux-gnu-
-
+BASE=$(pwd)
+pwd
 if [ $# -lt 1 ]
 then
 	echo "Using default directory ${OUTDIR} for output"
@@ -117,8 +118,8 @@ sudo mknod -m 666 dev/tty c 5 0
 #cd /home/siyaya/Documents/gitclone/homework/assignment-1-Tillingxianyu/finder-app
 #use docker
 #cd /home/assignment/finder-app
-cd $(dirname $0)
-cd ./finder-app
+cd ${BASE}
+pwd
 make clean 
 make CROSS_COMPILE=${CROSS_COMPILE}
 cp -v writer ${OUTDIR}/rootfs/home
